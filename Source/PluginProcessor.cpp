@@ -9,6 +9,7 @@
 #include "PluginProcessor.h"
 #include "PluginEditor.h"
 
+
 //==============================================================================
 ReverbAudioProcessor::ReverbAudioProcessor()
 #ifndef JucePlugin_PreferredChannelConfigurations
@@ -150,11 +151,25 @@ void ReverbAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce:
     // the samples and the outer loop is handling the channels.
     // Alternatively, you can process the samples with the channels
     // interleaved by keeping the same state.
-    for (int channel = 0; channel < totalNumInputChannels; ++channel)
-    {
-        auto* channelData = buffer.getWritePointer (channel);
+    int numSamples = buffer.getNumSamples();
+    float systemInput[2];// 2 channels
+    for (int sample = 0; sample < numSamples; ++sample) {
 
-        // ..do something to the data...
+        // Collect input data for the IIR system
+        for (int channel = 0; channel < totalNumInputChannels; ++channel)
+        {
+            systemInput[channel] = *buffer.getWritePointer(channel, sample);
+        }
+
+        // Update the system
+        float* systemOutput = system.update(systemInput);
+        
+        // Write the system's output back to the AudioBuffer
+        for (int channel = 0; channel < totalNumInputChannels; ++channel)
+        {
+             *buffer.getWritePointer(channel, sample) = systemOutput[channel];
+        }
+
     }
 }
 

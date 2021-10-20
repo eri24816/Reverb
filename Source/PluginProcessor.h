@@ -9,7 +9,7 @@
 #pragma once
 
 #include <JuceHeader.h>
-
+#include "IIR.h"
 //==============================================================================
 /**
 */
@@ -52,6 +52,9 @@ public:
     //==============================================================================
     void getStateInformation (juce::MemoryBlock& destData) override;
     void setStateInformation (const void* data, int sizeInBytes) override;
+
+    //==============================================================================
+    IIR::System system;
 
 private:
     //==============================================================================
