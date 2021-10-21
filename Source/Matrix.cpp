@@ -2,6 +2,7 @@
 
 
 // Inverse n*n matrix
+//https://www.quora.com/How-do-I-make-a-C++-program-to-get-the-inverse-of-a-matrix-100-X-100
 Matrix inverse(Matrix matrix)
 {
 	int i, j, k, n = matrix.nCol;
@@ -43,7 +44,7 @@ Matrix inverse(Matrix matrix)
 	return result;
 }
 
-
+// https://www.programiz.com/cpp-programming/examples/matrix-multiplication
 Matrix mult(Matrix& a, Matrix& b)
 {
 	int   i, j, k;

@@ -162,7 +162,7 @@ void ReverbAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce:
         }
 
         // Update the system
-        float* systemOutput = system.update(systemInput);
+        float* systemOutput = reverb.update(systemInput);
         
         // Write the system's output back to the AudioBuffer
         for (int channel = 0; channel < totalNumInputChannels; ++channel)

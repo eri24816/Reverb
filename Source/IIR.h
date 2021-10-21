@@ -3,30 +3,15 @@
 #include "Matrix.h"
 namespace IIR {
 
-	class Operation {
+	class Module {
 		
 	public:
 		int inputDim = 2;
 		virtual float* update(float* input) = 0;
 	};
 
-	// Multiply vector by scalar
-	class Mult : public Operation {
-		
-	public:
-		float multiplier = 0.2;
-
-		float* update(float* input) override {
-			for (int i = 0; i < inputDim; i++) {
-				input[i] *= multiplier;
-			}
-			return input;
-		}
-	};
-
-
 	// Delay line
-	class Delay : public Operation {
+	class Delay : public Module {
 	public:
 		std::queue<float> queues[8]; // Max. 8 delay lines
 		Delay(float inputDim_,const int numDelaySamples[]){
@@ -66,12 +51,11 @@ namespace IIR {
 	}
 
 	// IIR system that simulates reverb
-	class System {
-		
+	class Reverb : Module {
 		Delay inDelay,fbDelayLine;
 		float feedBack[2]{0,0};
 	public:
-		System():inDelay(2, new int[]{100,100}), fbDelayLine(2, new int[] {4000, 4000 }) {
+		Reverb():inDelay(2, new int[]{100,100}), fbDelayLine(2, new int[] {4000, 4000 }) {
 			Matrix eigenvectors = Matrix(3,3, new float[]{ 1, 5, 2, -2, 1, -4, 9, -10, 2 });
 			//eigenvectors.elem = { 1, 5, 2, -2, 1, -4, 9, -10, 2 };
 			Matrix eigenvalues = diag(new float[]{ 0.99,0.98,0.97 },3);
@@ -79,7 +63,7 @@ namespace IIR {
 		}
 
 		// PluginProcessor calls this
-		float* update(float* input){
+		float* update(float* input) override{
 
 			input = inDelay.update(input);
 

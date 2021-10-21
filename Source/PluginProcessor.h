@@ -54,7 +54,7 @@ public:
     void setStateInformation (const void* data, int sizeInBytes) override;
 
     //==============================================================================
-    IIR::System system;
+    IIR::Reverb reverb;
 
 private:
     //==============================================================================

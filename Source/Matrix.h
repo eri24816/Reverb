@@ -10,10 +10,10 @@ Matrix diag(float a[],int size);
 
 struct Matrix
 {
-	float elem[9] = { 1, 5, 2, -2, 1, -4, 9, -10, 2 };
+	float* elem;
 	int nRow, nCol;
 	Matrix(int nRow, int nCol,float* initValue = nullptr) :nRow(nRow), nCol(nCol) {
-		//elem = new float[nRow*nCol]; 
+		elem = new float[nRow*nCol]; 
 		if (initValue) {
 			for (int i = 0; i < nRow * nCol; i++) {
 				elem[i] = initValue[i];
