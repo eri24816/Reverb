@@ -4,7 +4,6 @@
 namespace IIR {
 
 	class Module {
-		
 	public:
 		int inputDim = 2;
 		virtual float* update(float* input) = 0;
@@ -53,27 +52,35 @@ namespace IIR {
 	// IIR system that simulates reverb
 	class Reverb : Module {
 		Delay inDelay,fbDelayLine;
-		float feedBack[2]{0,0};
+		float feedBack[3]{0,0,0};
+
+		Matrix  distrib,outDistrib;
+		Matrix feedbackmatrix;
 	public:
-		Reverb():inDelay(2, new int[]{100,100}), fbDelayLine(2, new int[] {4000, 4000 }) {
+		Reverb() :
+			inDelay(2, new int[] {100, 120}),
+			fbDelayLine(3, new int[] {2000, 4000 ,3000}),
+			distrib(3, 2, new float[] { 0.8, -0.3, 0.4, 0.3, -0.8, 0.3 }),
+			outDistrib(2,3, new float[] { -0.8, 0.3, 0.4, 0.4, -0.8, 0.3 })
+		{
 			Matrix eigenvectors = Matrix(3,3, new float[]{ 1, 5, 2, -2, 1, -4, 9, -10, 2 });
-			//eigenvectors.elem = { 1, 5, 2, -2, 1, -4, 9, -10, 2 };
-			Matrix eigenvalues = diag(new float[]{ 0.99,0.98,0.97 },3);
-			Matrix m = eigenvectors * eigenvalues * ~eigenvectors;
+			Matrix eigenvalues = diag(new float[]{ 0.9,0.93,0.8 },3);
+			feedbackmatrix = eigenvectors * eigenvalues * ~eigenvectors;
 		}
 
 		// PluginProcessor calls this
 		float* update(float* input) override{
+			//DBG(distrib[0][0]);
 
-			input = inDelay.update(input);
+			input = distrib * inDelay.update(input);
 
-			add(2,input, feedBack);
+			add(3,input, fbDelayLine.update(feedBack));
 
-			float* output = fbDelayLine.update(mult(2,input,0.8f));
+			float* output = fbDelayLine.update(feedbackmatrix*input);
 
-			copy(2,feedBack, output);
+			copy(3,feedBack, output);
 
-			return output;
+			return outDistrib*output;
 		}
 	};
 }

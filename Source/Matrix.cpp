@@ -68,11 +68,11 @@ Matrix mult(Matrix& a, Matrix& b)
 	return mult;
 }
 
-float* mult(Matrix m, float* v, float* result) {
+float* mult(Matrix& m, float* v, float* result) {
 	for (int i = 0; i < m.nRow; i++) {
 		result[i] = 0;
 		for (int j = 0; j < m.nCol; j++) {
-			result[i] += m[i][j] * v[i];
+			result[i] += m[i][j] * v[j];
 		}
 	}
 	return result;
