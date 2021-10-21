@@ -52,26 +52,41 @@ namespace IIR {
 		}
 	};
 
+	// Copy b to a
+	inline float* copy(int n, float* a, float* b) {
+		while (n--)a[n] = b[n];
+		return a;
+	}
+
+	// Add b to a
+	inline float* add(int n, float* a, float* b) {
+		while (n--)a[n] += b[n];
+		return a;
+	}
+
+	// Multiply a(vector) with b(scalar)
+	inline float* mult(int n, float* a, float b) {
+		while (n--)a[n] *= b;
+		return a;
+	}
+
 	// IIR system that simulates reverb
 	class System {
-		Mult mult;
+		
 		Delay delay;
 		float feedBack[2]{0,0};
 	public:
-		System():delay(2, new int[]{ 4000,4000 }) {
-			mult.multiplier = 0.9f;
+		System():delay(2, new int[]{4000,3700 }) {
 		}
 
 		// PluginProcessor calls this
 		float* update(float* input){
 
-			input[0] += feedBack[0];
-			input[1] += feedBack[1];
+			add(2,input, feedBack);
 
-			float* output = delay.update(mult.update(input));
+			float* output = delay.update(mult(2,input,0.8f));
 
-			feedBack[0] = output[0];
-			feedBack[1] = output[1];
+			copy(2,feedBack, output);
 
 			return output;
 		}
