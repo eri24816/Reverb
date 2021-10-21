@@ -1,5 +1,6 @@
 #pragma once
 #include <queue>
+#include "Matrix.h"
 namespace IIR {
 
 	class Operation {
@@ -24,17 +25,11 @@ namespace IIR {
 	};
 
 
-	// Multiply vector by matrix
-	class Matrix : public Operation {
-
-	};
-
 	// Delay line
 	class Delay : public Operation {
 	public:
-		std::queue<float> queues[2];
+		std::queue<float> queues[8]; // Max. 8 delay lines
 		Delay(float inputDim_,const int numDelaySamples[]){
-			DBG(numDelaySamples[0]);
 			inputDim = inputDim_;
 			for (int i = 0; i < inputDim; i++) {
 				for(int j=0;j< numDelaySamples[i];j++)
@@ -73,23 +68,28 @@ namespace IIR {
 	// IIR system that simulates reverb
 	class System {
 		
-		Delay delay;
+		Delay inDelay,fbDelayLine;
 		float feedBack[2]{0,0};
 	public:
-		System():delay(2, new int[]{4000,3700 }) {
+		System():inDelay(2, new int[]{100,100}), fbDelayLine(2, new int[] {4000, 4000 }) {
+			Matrix eigenvectors = Matrix(3,3, new float[]{ 1, 5, 2, -2, 1, -4, 9, -10, 2 });
+			//eigenvectors.elem = { 1, 5, 2, -2, 1, -4, 9, -10, 2 };
+			Matrix eigenvalues = diag(new float[]{ 0.99,0.98,0.97 },3);
+			Matrix m = eigenvectors * eigenvalues * ~eigenvectors;
 		}
 
 		// PluginProcessor calls this
 		float* update(float* input){
 
+			input = inDelay.update(input);
+
 			add(2,input, feedBack);
 
-			float* output = delay.update(mult(2,input,0.8f));
+			float* output = fbDelayLine.update(mult(2,input,0.8f));
 
 			copy(2,feedBack, output);
 
 			return output;
 		}
 	};
-
 }
