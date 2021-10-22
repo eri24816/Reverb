@@ -11,8 +11,8 @@ Matrix diag(float a[],int size);
 class Matrix
 {
 public:
-	float elem[100];
-	float multBuffer[10];
+	float elem[100] = { 0 };
+	float multBuffer[10] = {0};
 	int nRow, nCol;
 	Matrix() {}
 	Matrix(int nRow, int nCol,float* initValue = nullptr) :nRow(nRow), nCol(nCol) {
