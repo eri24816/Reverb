@@ -22,7 +22,7 @@ ReverbAudioProcessor::ReverbAudioProcessor()
                      #endif
                        )
 #endif
-    ,allpass(2,0.5,2)
+    , allpass2(2, 0.5, 2)
 {
 }
 
@@ -163,7 +163,7 @@ void ReverbAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce:
         }
 
         // Update the system
-        float* systemOutput = allpass.update(systemInput);
+        float* systemOutput = reverb.update(systemInput);
         
         // Write the system's output back to the AudioBuffer
         for (int channel = 0; channel < totalNumInputChannels; ++channel)

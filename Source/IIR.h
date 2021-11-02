@@ -58,6 +58,53 @@ namespace IIR {
 		}
 	};
 
+	class DelayLine {
+	private:
+		float* buffer;
+		int length;
+		int pointer=0;
+	public:
+		DelayLine(int inputDim, int length) :buffer(new float[length] {0}),length(length) {}
+		float update(float input) {
+			float output = buffer[pointer];
+			buffer[pointer] = input;
+			pointer++;
+			if (pointer == length)pointer = 0;
+			return output;
+		}
+	};
+
+	class Delay2 : public Module {
+	private:
+		float* arr[8];
+		int pos[8]{ 0 };
+		int len[8];
+		float outputBuffer[10];
+	public:
+
+		Delay2(float inputDim, const int numDelaySamples[]) :Module(inputDim) {
+			for (int i = 0; i < inputDim; i++) {
+				arr[i] = new float[numDelaySamples[i]]{ 0 };
+				len[i] = numDelaySamples[i];
+			}
+		}
+		Delay2(float inputDim, int numDelaySamples) :Module(inputDim) {
+			for (int i = 0; i < inputDim; i++) {
+				arr[i] = new float[numDelaySamples]{ 0 };
+				len[i] = numDelaySamples;
+			}
+		}
+		float* update(float* input) override {
+			for (int i = 0; i < inputDim; i++) {
+				outputBuffer[i] = arr[i][pos[i]];
+				arr[i][pos[i]] = input[i];
+				pos[i]++;
+				if (pos[i] == len[i])pos[i] = 0;
+			}
+			return outputBuffer;
+		}
+	};
+
 	class Lowpass :Module {
 		Delay delay1, delay2, delay3, delay4;
 		float temp[10];
@@ -82,8 +129,8 @@ namespace IIR {
 	class Allpass : Module {
 	private:
 		float R2, twoRCosTheta;
-		Delay ff1, ff2, fb1, fb2;
-		float feedback[10]{ 0 }, temp[10]{ 0 };
+		Delay2 ff1, ff2, fb1, fb2;
+		float feedback[10]{ 0 }, temp[10]{ 0 }, fbtemp[10]{ 0 };
 	public:
 		Allpass(float inputDim, float R, float theta) :
 			Module(inputDim),
@@ -103,8 +150,9 @@ namespace IIR {
 			mult(inputDim, input, R2);
 			add(inputDim, input, mult(inputDim, ff1.update(temp), -twoRCosTheta));
 			add(inputDim, input, ff2.update(temp));
-			add(inputDim, input, mult(inputDim, fb1.update(feedback), twoRCosTheta));
-			add(inputDim, input, mult(inputDim, fb2.update(feedback), -R2));
+			copy(inputDim, fbtemp, feedback);
+			add(inputDim, input, mult(inputDim, feedback, twoRCosTheta));
+			add(inputDim, input, mult(inputDim, fb1.update(fbtemp), -R2));
 
 			copy(inputDim, feedback, input);
 
@@ -166,13 +214,13 @@ namespace IIR {
 			Module(2),
 			inDelay(inputDim, new int[] {100, 120}),
 			delayFilters(NCH),
-			allpass(NCH, 0.3, 0.3),
+			allpass(NCH, 0.95, 1),
 			fbDelayLine(NCH, new int[] {123, 1402 ,3860,375,3046,213,586,100}),
 			distrib(NCH, inputDim, new float[] { 0.094, 0.142, -0.189, 0.124, 0.02, 0.161, 0.026, 0.023, 0.079, -0.068, -0.134, 0.286, 0.161, -0.216, 0.086, -0.043 }),
 			outDistrib(inputDim, NCH, new float[] {-0.05, -0.207, 0.18, -0.172, -0.221, -0.287, 0.077, -0.095, -0.252, 0.29, -0.163, 0.064, -0.272, -0.135, 0.211, 0.085})
 		{
 			Matrix eigenvectors = Matrix(NCH, NCH, new float[]{ -2.542, 1.19, -0.103, 0.196, 0.196, 1.07, 0.887, 1.075, -0.028, 0.419, 1.299, 0.278, 0.491, 0.581, -0.374, 0.853, -0.063, 0.12, -0.059, 0.684, -0.031, -0.324, 1.366, -0.432, 0.033, -0.3, 1.142, 0.744, -0.226, -0.009, 1.475, 0.95, 0.227, 1.462, 0.207, 0.989, 0.501, 1.215, -0.215, 0.865, 1.013, 0.531, 1.078, 0.448, 1.018, 1.347, 0.887, 0.302, 1.458, 1.034, 0.902, 0.084, 0.795, 0.07, -0.245, -0.182, 1.368, -0.102, 0.352, 0.417, 0.284, 1.093, 0.267, 0.046 });
-			Matrix eigenvalues = diag(new float[]{0.912, 0.812, 0.812, 0.816, 0.921, 0.91, 0.918, 0.919 }, NCH);
+			Matrix eigenvalues = diag(new float[]{0.7,0.71, 0.72,0.715,0.714,0.6,0.74,0.73}, NCH);
 			feedbackmatrix = eigenvectors * eigenvalues * ~eigenvectors;
 		}
 
