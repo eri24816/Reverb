@@ -54,10 +54,16 @@ public:
     void setStateInformation (const void* data, int sizeInBytes) override;
 
     //==============================================================================
+    void addInpulse() {
+        addInpulseNextSample = true;
+    }
     IIR::Reverb reverb;
-    IIR::Allpass2 allpass2;
+    IIR::Allpass2 allpass;
+    IIR::Comb comb;
 
 private:
+
+    int addInpulseNextSample = false;
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ReverbAudioProcessor)
 };

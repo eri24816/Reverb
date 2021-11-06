@@ -22,7 +22,7 @@ ReverbAudioProcessor::ReverbAudioProcessor()
                      #endif
                        )
 #endif
-    , allpass2(2, 0.5, 2)
+    , allpass(2, new float[] {0.8, 0.8}, new float[] {1,1}),comb(2)
 {
 }
 
@@ -145,7 +145,7 @@ void ReverbAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce:
     // this code if your algorithm always overwrites all the output channels.
     for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
         buffer.clear (i, 0, buffer.getNumSamples());
-
+    
     // This is the place where you'd normally do the guts of your plugin's
     // audio processing...
     // Make sure to reset the state if your inner loop is processing
@@ -160,10 +160,15 @@ void ReverbAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce:
         for (int channel = 0; channel < totalNumInputChannels; ++channel)
         {
             systemInput[channel] = *buffer.getWritePointer(channel, sample);
+            if (addInpulseNextSample) {
+                systemInput[channel] += .5;
+                
+            }
         }
-
+        addInpulseNextSample = false;
         // Update the system
         float* systemOutput = reverb.update(systemInput);
+        //float* systemOutput = comb.update(systemInput);
         
         // Write the system's output back to the AudioBuffer
         for (int channel = 0; channel < totalNumInputChannels; ++channel)
