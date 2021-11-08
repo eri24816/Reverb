@@ -32,24 +32,22 @@ void RotarySlider::resized() {
 
 //==============================================================================
 ReverbAudioProcessorEditor::ReverbAudioProcessorEditor(ReverbAudioProcessor& p)
-    : AudioProcessorEditor(&p), audioProcessor(p), R(audioProcessor, "APF r"), theta(audioProcessor, "APF freq")
+    : AudioProcessorEditor(&p), audioProcessor(p), channelSelector(audioProcessor, "channel : -1"), theta(audioProcessor, "APF freq"),impulseButton("impulse")
 {
     // Make sure that before the constructor has finished, you've set the
     // editor's size to whatever you need it to be.
     setSize (400, 300);
-    addAndMakeVisible(R);
+    addAndMakeVisible(channelSelector);
     theta.setRange(0,3.14159,0.1);
-    R.setRange(0, 1,0.01);
-    theta.onValueChange= R.onValueChange = [this]() {
-        float R = this->R.getValue();
-        float theta = this->theta.getValue();
-        //this->audioProcessor.reverb.allpass.R2 = R*R; 
-        //this->audioProcessor.reverb.allpass.twoRCosTheta= 2*R*cos(theta);
-
+    channelSelector.setRange(-1,7,1);
+    channelSelector.setValue(-1);
+    channelSelector.onValueChange = [this,&p]() {
+        channelSelector.nameLabel.setText("channel : "+juce::String(this->channelSelector.getValue()), juce::NotificationType::dontSendNotification);
+        p.reverb.ChangeChannel(this->channelSelector.getValue());
     };
     addAndMakeVisible(theta);
-    addAndMakeVisible(inpulseButton);
-    inpulseButton.onClick = [&p]() {p.addInpulse();};
+    addAndMakeVisible(impulseButton);
+    impulseButton.onClick = [&p]() {p.addInpulse();};
 }
 
 ReverbAudioProcessorEditor::~ReverbAudioProcessorEditor()
@@ -69,7 +67,7 @@ void ReverbAudioProcessorEditor::resized()
     flexbox.flexWrap = juce::FlexBox::Wrap::wrap;
     flexbox.justifyContent = juce::FlexBox::JustifyContent::center;
     flexbox.alignContent = juce::FlexBox::AlignContent::center;
-    flexbox.items = {juce::FlexItem( R).withMinWidth(70.0f).withMinHeight(90.0f),juce::FlexItem(theta).withMinWidth(70.0f).withMinHeight(90.0f) };
+    flexbox.items = {juce::FlexItem( channelSelector).withMinWidth(90.0f).withMinHeight(90.0f),juce::FlexItem(theta).withMinWidth(90.0f).withMinHeight(90.0f) };
     flexbox.performLayout(getLocalBounds().getProportion(juce::Rectangle<float>(0, 0, 1, 0.8)).reduced(10));
-    inpulseButton.setBounds(getLocalBounds().getProportion(juce::Rectangle<float>(0, 0.5, 1, 0.2)).reduced(10));
+    impulseButton.setBounds(getLocalBounds().getProportion(juce::Rectangle<float>(0, 0.8, 1, 0.2)).reduced(10));
 }

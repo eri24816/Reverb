@@ -161,7 +161,7 @@ void ReverbAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce:
         {
             systemInput[channel] = *buffer.getWritePointer(channel, sample);
             if (addInpulseNextSample) {
-                systemInput[channel] += .5;
+                systemInput[channel] += 1;
                 
             }
         }
