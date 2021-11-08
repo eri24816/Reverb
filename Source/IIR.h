@@ -106,28 +106,23 @@ namespace IIR {
 	};
 
 	class Lowpass :Module {
-		Delay delay1, delay2, delay3, delay4;
-		float c1, c2, c3, c4;
-		float temp[10];
+		float a=0.5;
+		float feedback[10]{ 0 };
 	public:
-		Lowpass(int inputDim) :Module(inputDim), 
-			delay1(inputDim, 1),
-			delay2(inputDim, 2),
-			delay3(inputDim, 3),
-			delay4(inputDim, 4)
-		{}
+		Lowpass(int inputDim) :Module(inputDim){}
 		float* update(float* input) override {
-			copy(inputDim, temp, input);
 
-			add(inputDim, input, delay1.update(temp));
-			add(inputDim, input, delay2.update(temp));
-			add(inputDim, input, delay3.update(temp));
-			add(inputDim, input, delay4.update(temp));
+			mult(inputDim, input, 1 - a);
+			mult(inputDim, feedback, a);
 
-			return mult(inputDim, input, 0.2);
+			add(inputDim, input, feedback);
+
+			copy(inputDim, feedback, input);
+
+			return mult(inputDim, input,1);
 		}
-		void setAmount(float amount) {
-			
+		void setA(float a) {
+			this->a = a;
 		}
 	};
 	class Allpass : Module {

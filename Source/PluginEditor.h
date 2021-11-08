@@ -35,7 +35,7 @@ public:
     void paint (juce::Graphics&) override;
     void resized() override;
 
-    RotarySlider channelSelector, theta;
+    RotarySlider channelSelector, cutoff;
     juce::TextButton impulseButton;
 
 private:
