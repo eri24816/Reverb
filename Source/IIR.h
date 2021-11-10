@@ -122,7 +122,7 @@ namespace IIR {
 			return mult(inputDim, input,1);
 		}
 		void setA(float a) {
-			this->a = a;
+			this->a = exp(-(1.f/44100)*6.283*a);
 		}
 	};
 	class Allpass : Module {
@@ -210,6 +210,10 @@ namespace IIR {
 
 		Matrix  distrib,outDistrib;
 		Matrix feedbackmatrix;
+
+		float dryAmount = 1;
+		float wetAmount = 1;
+
 	public:
 		Delay inDelay, fbDelayLine;
 		Lowpass delayFilters;
@@ -219,31 +223,46 @@ namespace IIR {
 			Module(2),
 			inDelay(inputDim, new int[] {100, 120}),
 			delayFilters(NCH),
-			allpass(NCH, new float[] { 0.5, 0.52, 0.5, 0.5, 0.5, 0.6, 0.5, 0.7 }, new float[] {0.7, 1.6, 2.03, 1.5, 2.2, 3.1, 1.9, 1.8}),
-			fbDelayLine(NCH, new int[] {2232, 3403 ,3860,3575,3046,2137,5864,5003}),
+			allpass(NCH, new float[] { 0.9, 0.99, 0.9, 0.95, 0.8, 0.96, 0.75, 0.97 }, new float[] {0.7, 0.8, 1, 1.5, 0.73, 1, 0.93, 1.8}),
+			fbDelayLine(NCH, new int[] {2 ,4, 6,174,453,234,675,923}),
 			distrib(NCH, inputDim, new float[] { 0.094, 0.142, -0.189, 0.124, 0.02, 0.161, 0.026, 0.023, 0.079, -0.068, -0.134, 0.286, 0.161, -0.216, 0.086, -0.043 }),
 			outDistrib(inputDim, NCH, new float[] {-0.05, -0.207, 0.18, -0.172, -0.221, -0.287, 0.077, -0.095, -0.252, 0.29, -0.163, 0.064, -0.272, -0.135, 0.211, 0.085})
 		{
+			/*
 			Matrix eigenvectors = Matrix(NCH, NCH, new float[]{ -2.542, 1.19, -0.103, 0.196, 0.196, 1.07, 0.887, 1.075, -0.028, 0.419, 1.299, 0.278, 0.491, 0.581, -0.374, 0.853, -0.063, 0.12, -0.059, 0.684, -0.031, -0.324, 1.366, -0.432, 0.033, -0.3, 1.142, 0.744, -0.226, -0.009, 1.475, 0.95, 0.227, 1.462, 0.207, 0.989, 0.501, 1.215, -0.215, 0.865, 1.013, 0.531, 1.078, 0.448, 1.018, 1.347, 0.887, 0.302, 1.458, 1.034, 0.902, 0.084, 0.795, 0.07, -0.245, -0.182, 1.368, -0.102, 0.352, 0.417, 0.284, 1.093, 0.267, 0.046 });
 			Matrix eigenvalues = diag(new float[]{0.8,0.81, 0.82,0.815,0.814,0.8,0.84,0.83}, NCH);
 			feedbackmatrix = eigenvectors * eigenvalues * ~eigenvectors;
+			*/
+			feedbackmatrix = Matrix(NCH, NCH, new float[] {
+				0.1, 0.9, 0, 0.0, 0.0, 0.0, 0.0, 0.0,
+				0.0, 0.1, 0.9, 0, 0.0, 0.0, 0.0, 0.0,
+				0.0, 0.0, 0.1, 0.9, 0, 0.0, 0.0, 0.0,
+				0.0, 0.0, 0.0, 0.1, 0.9, 0, 0.0, 0.0,
+				0.0, 0.0, 0.0, 0.0, 0.1, 0.9, 0, 0.0,
+				0.0, 0.0, 0.0, 0.0, 0.0, 0.1, 0.9, 0,
+				0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.1, 0.9,
+				0.9, 0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.1,
+			});
 		}
 
 		// PluginProcessor calls this
 		float* update(float* input) override{
 
-			if (channel != -1) {
+			if (channel >0) {
 				float inputToAllpass[NCH]{ 0 };
 				for (int i = 0; i < NCH; i++) {
 					inputToAllpass[i] = input[0];
 				}
 				float*  temp= allpass.update(inputToAllpass);
-				temp = feedbackmatrix * temp;
+				if(JUCE_LIVE_CONSTANT(false))
+					temp = feedbackmatrix * temp;
 				delayFilters.update(temp);
 				input[0] = temp[channel];
 				input[1] = temp[channel];
 				return input;
 			}
+			float dry[2];
+			copy(inputDim, dry, input);
 
 			input = distrib * inDelay.update(input);
 
@@ -257,7 +276,7 @@ namespace IIR {
 
 			copy(NCH,feedBack, output);
 
-			return outDistrib*output;
+			return add(inputDim,mult(inputDim,outDistrib*output,wetAmount), mult(inputDim, dry,dryAmount));
 		}
 
 		int channel = -1;
@@ -265,6 +284,12 @@ namespace IIR {
 		void ChangeChannel(int channel) {
 
 			this->channel = channel;
+		}
+
+		void SetDryWetRatio(float value) {
+			value *= 3.14159265 / 2;
+			dryAmount = cos(value);
+			wetAmount = sin(value)*3;
 		}
 
 	};
