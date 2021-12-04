@@ -22,7 +22,7 @@ ReverbAudioProcessor::ReverbAudioProcessor()
                      #endif
                        )
 #endif
-    , allpass(2, new float[] {0.8, 0.8}, new float[] {1,1}),comb(2)
+    ,allpass(new float[] {0.8, 0.8}, new float[] {1,1})
 {
 }
 

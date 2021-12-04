@@ -57,9 +57,8 @@ public:
     void addInpulse() {
         addInpulseNextSample = true;
     }
-    IIR::Reverb reverb;
-    IIR::Allpass2 allpass;
-    IIR::Comb comb;
+    IIR::Reverb<2> reverb;
+    IIR::Allpass2<2> allpass;
     juce::dsp::Convolution conv;
     
     juce::AudioSampleBuffer chooseFile() {
