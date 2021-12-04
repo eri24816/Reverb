@@ -35,6 +35,21 @@ namespace IIR {
 	private:
 		std::queue<float> queues[8]; // Max. 8 delay lines
 		float outputBuffer[10]{0};
+
+		float temp_SetNumDelaySamples[inputDim];
+
+		bool toSetNumDelaySamples = false;
+		void _SetNumDelaySamples() {
+			for (int i = 0; i < inputDim; i++) {
+				while (queues[i].size() > temp_SetNumDelaySamples[i]) {
+					queues[i].pop();
+				}
+				while (queues[i].size() < temp_SetNumDelaySamples[i]) {
+					queues[i].push(0);
+				}
+			}
+		}
+
 	public:
 		
 		Delay(const int numDelaySamples[]){
@@ -50,6 +65,10 @@ namespace IIR {
 			}
 		}
 		float* update(float* input) override{
+			if (toSetNumDelaySamples) {
+				toSetNumDelaySamples = false;
+				_SetNumDelaySamples();
+			}
 			for (int i = 0; i < inputDim; i++) {
 				queues[i].push(input[i]);
 				outputBuffer[i] = queues[i].front();
@@ -59,13 +78,9 @@ namespace IIR {
 		}
 		void SetNumDelaySamples(const int numDelaySamples[]) {
 			for (int i = 0; i < inputDim; i++) {
-				while (queues[i].size() > numDelaySamples[i]) {
-					queues[i].pop();
-				}
-				while (queues[i].size() < numDelaySamples[i]) {
-					queues[i].push(0);
-				}
+				temp_SetNumDelaySamples[i] = numDelaySamples[i];
 			}
+			toSetNumDelaySamples = true;
 		}
 	};
 
@@ -178,13 +193,15 @@ namespace IIR {
 	template<int inputDim>
 	class Allpass2: Module<inputDim> {
 	private:
-		float R2[10], twoRCosTheta[10];
+		float R[10],theta[10],R2[10], twoRCosTheta[10];
 		float x1[10] = { 0 }, x2[10] = {0}, y1[10] = {0}, y2[10] = { 0 };
 		float output[10];
 	public:
 		Allpass2(float R[],float theta[])
 		{
 			for (int i = 0; i < inputDim; i++) {
+				this->R[i] = R[i];
+				this->theta[i] = theta[i];
 				twoRCosTheta[i]=(2 * R[i] * cos(theta[i]));
 				R2[i] = R[i]* R[i];
 			}
@@ -207,7 +224,7 @@ namespace IIR {
 
 		void SetR(float* r) {
 			for (int i = 0; i < inputDim; i++) {
-				R[i] = r[i];
+				this->R[i] = r[i];
 			}
 			for (int i = 0; i < inputDim; i++) {
 				twoRCosTheta[i] = (2 * R[i] * cos(theta[i]));
@@ -258,14 +275,15 @@ namespace IIR {
 		float dryAmount = 1;
 		float wetAmount = 1;
 		
-		float _roomSize = 1;
-		float _roomShape = 1;
+		float _roomSize = 1000;
+		float _roomShape = 0.1;
 		float _decay = 1;
-		float _damping = 1;
+		float _damping = 10000;
 		float _modulationDepth = 1;
 
 	public:
-		Delay<NCH> inDelay, fbDelayLine;
+		Delay<inputDim>inDelay;
+		Delay<NCH> fbDelayLine;
 		Lowpass<NCH> delayFilters;
 		Allpass2<NCH> allpass;
 		DCBlocker<NCH> dcBlocker;
@@ -376,7 +394,7 @@ namespace IIR {
 			_roomSize=v;
 			int numDelaySamples[NCH];
 			for (int i = 0; i < NCH; i++) {
-				numDelaySamples[i] = oneStd * _roomShape * roomSize + roomSize;
+				numDelaySamples[i] = oneStd[i] * _roomShape * _roomSize + _roomSize;
 				if (numDelaySamples[i] < 1)numDelaySamples[i] = 1;
 			}
 			fbDelayLine.SetNumDelaySamples(numDelaySamples);
@@ -386,7 +404,7 @@ namespace IIR {
 			_roomShape = v;
 			int numDelaySamples[NCH];
 			for (int i = 0; i < NCH; i++) {
-				numDelaySamples[i] = oneStd * _roomShape + roomSize;
+				numDelaySamples[i] = oneStd[i] * _roomShape * _roomSize + _roomSize;
 				if (numDelaySamples[i] < 1)numDelaySamples[i] = 1;
 			}
 			fbDelayLine.SetNumDelaySamples(numDelaySamples);
@@ -398,13 +416,16 @@ namespace IIR {
 
 		void SetDamping(float v) {
 			_damping = v; 
-			delayFilters.setA(_damping)
+			delayFilters.setA(_damping);
 		}
 
 		float baseR[8] = { 0.9, 0.99, 0.9, 0.95, 0.8, 0.96, 0.75, 0.97 };
 		void SetModulationDepth(float v) {
 			_modulationDepth = v; 
-			allpass.SetR(mult(inputDim, baseR, v));
+			float R[8];
+			copy(NCH,  R,baseR);
+			mult(NCH, R, v);
+			allpass.SetR(R);
 		}
 
 	};

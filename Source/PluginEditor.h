@@ -36,7 +36,10 @@ public:
     void paint (juce::Graphics&) override;
     void resized() override;
 
-    RotarySlider channelSelector, cutoff,dryWet;
+    RotarySlider channelSelector, dryWet;
+
+    RotarySlider roomSize, roomShape, decay, damping, modulationDepth;
+
     juce::TextButton impulseButton;
 
     juce::TextButton chooseButton;
