@@ -17,6 +17,7 @@ private:
     
 public:
     juce::Label nameLabel;
+
     RotarySlider(ReverbAudioProcessor& audioProcessor, char* name);
     RotarySlider() {};
     void resized() override;
@@ -38,6 +39,7 @@ public:
     RotarySlider channelSelector, cutoff,dryWet;
     juce::TextButton impulseButton;
 
+    juce::TextButton chooseButton;
 private:
     // This reference is provided as a quick way for your editor to
     // access the processor object that created it.

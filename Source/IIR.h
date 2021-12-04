@@ -243,7 +243,7 @@ namespace IIR {
 			inDelay(inputDim, new int[] {100, 120}),
 			delayFilters(NCH),
 			allpass(NCH, new float[] { 0.9, 0.99, 0.9, 0.95, 0.8, 0.96, 0.75, 0.97 }, new float[] {0.7, 0.8, 1, 1.5, 0.73, 1, 0.93, 1.8}),
-			fbDelayLine(NCH, new int[] {0 ,1, 2,520,858,4324,5462,10756}),// The actually delay time is one sample more than the numbers here.
+			fbDelayLine(NCH, new int[] {3505,4725,7528,5270,8578,4324,5462,4256}),// The actual delay time is one sample more than the numbers here.
 			distrib(NCH, inputDim, new float[] { 0.094, 0.142, -0.189, 0.124, 0.02, 0.161, 0.026, 0.023, 0.079, -0.068, -0.134, 0.286, 0.161, -0.216, 0.086, -0.043 }),
 			outDistrib(inputDim, NCH, new float[] {-0.05, -0.207, 0.18, -0.172, -0.221, -0.287, 0.077, -0.095, -0.252, 0.29, -0.163, 0.064, -0.272, -0.135, 0.211, 0.085})
 			, dcBlocker(NCH)
@@ -253,7 +253,7 @@ namespace IIR {
 			Matrix eigenvalues = diag(new float[]{0.8,0.81, 0.82,0.815,0.814,0.8,0.84,0.83}, NCH);
 			feedbackmatrix = eigenvectors * eigenvalues * ~eigenvectors;
 			*/
-			/*
+			
 			// Matrix that have long reverb time
 			feedbackmatrix = Matrix(NCH, NCH, new float[] {
 				0.1, 0.9, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
@@ -264,8 +264,8 @@ namespace IIR {
 				0.0, 0.0, 0.0, 0.0, 0.0, 0.1, 0.9, 0,
 				0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.1, 0.9,
 				0.9, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.1,
-			});*/
-			
+			});
+			/*
 			// Matrix that make low freq gain more
 			feedbackmatrix = Matrix(NCH, NCH, new float[] {
 				0.7, 0.3, 0, 0.0, 0.0, 0.0, 0.0, 0.0,
@@ -277,7 +277,7 @@ namespace IIR {
 				0.2, 0.2, 0.0, 0.0, 0.0, 0.0, 0.1, 0.5,
 				 0.2, 0.2, 0.5, 0.0, 0.0, 0.0, 0.0, 0.1,
 			});
-
+			*/
 		}
 
 		// PluginProcessor calls this

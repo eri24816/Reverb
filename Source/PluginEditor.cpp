@@ -50,7 +50,7 @@ ReverbAudioProcessorEditor::ReverbAudioProcessorEditor(ReverbAudioProcessor& p)
     channelSelector.setRange(-1,7,1);
     channelSelector.setValue(-1);
     channelSelector.onValueChange = [this,&p]() {
-        channelSelector.nameLabel.setText("channel : "+juce::String(this->channelSelector.getValue()), juce::NotificationType::dontSendNotification);
+        channelSelector.nameLabel.setText("channel   : "+juce::String(this->channelSelector.getValue()), juce::NotificationType::dontSendNotification);
         p.reverb.ChangeChannel(this->channelSelector.getValue());
     };
 
@@ -65,6 +65,9 @@ ReverbAudioProcessorEditor::ReverbAudioProcessorEditor(ReverbAudioProcessor& p)
     addAndMakeVisible(impulseButton);
     addAndMakeVisible(dryWet);
     impulseButton.onClick = [&p]() {p.addInpulse();};
+    chooseButton.onClick = [&p]() {p.chooseFile(); };
+
+    addAndMakeVisible(chooseButton);
 }
 
 ReverbAudioProcessorEditor::~ReverbAudioProcessorEditor()
@@ -89,5 +92,7 @@ void ReverbAudioProcessorEditor::resized()
         juce::FlexItem(dryWet).withMinWidth(90.0f).withMinHeight(90.0f)
     };
     flexbox.performLayout(getLocalBounds().getProportion(juce::Rectangle<float>(0, 0, 1, 0.8)).reduced(10));
-    impulseButton.setBounds(getLocalBounds().getProportion(juce::Rectangle<float>(0, 0.8, 1, 0.2)).reduced(10));
+    impulseButton.setBounds(getLocalBounds().getProportion(juce::Rectangle<float>(0, 0.8, 0.5, 0.2)).reduced(10));
+
+    chooseButton.setBounds(getLocalBounds().getProportion(juce::Rectangle<float>(0.5, 0.8, 0.5, 0.2)).reduced(10));
 }
