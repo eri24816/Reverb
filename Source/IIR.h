@@ -115,7 +115,7 @@ namespace IIR {
 				len[i] = numDelaySamples[i];
 			}
 		}
-		Delay2(float inputDim, int numDelaySamples){
+		Delay2(int numDelaySamples){
 			for (int i = 0; i < inputDim; i++) {
 				arr[i] = new float[numDelaySamples]{ 0 };
 				len[i] = numDelaySamples;
@@ -159,8 +159,7 @@ namespace IIR {
 		float feedback[10]{ 0 }, temp[10]{ 0 }, fbtemp[10]{ 0 };
 	public:
 		float R2, twoRCosTheta;
-		Allpass(float inputDim, float R, float theta) :
-			Module(inputDim),
+		Allpass(float R, float theta):
 			twoRCosTheta(2 * R * cos(theta)),
 			R2(R* R),
 			ff1(inputDim, 1),
