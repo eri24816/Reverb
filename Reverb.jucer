@@ -12,6 +12,13 @@
       <FILE id="pHxtM0" name="PluginEditor.cpp" compile="1" resource="0"
             file="Source/PluginEditor.cpp"/>
       <FILE id="EbgSbB" name="PluginEditor.h" compile="0" resource="0" file="Source/PluginEditor.h"/>
+      <FILE id="WF4Okv" name="IIR.h" compile="0" resource="0" file="Source/IIR.h"/>
+      <FILE id="YL2StZ" name="Matrix.cpp" compile="1" resource="0" file="Source/Matrix.cpp"/>
+      <FILE id="FVCdcT" name="Matrix.h" compile="0" resource="0" file="Source/Matrix.h"/>
+      <FILE id="z4222e" name="LateReverbProcessor.cpp" compile="1" resource="0"
+            file="Source/LateReverbProcessor.cpp"/>
+      <FILE id="K7oNde" name="LateReverbProcessor.h" compile="0" resource="0"
+            file="Source/LateReverbProcessor.h"/>
     </GROUP>
   </MAINGROUP>
   <JUCEOPTIONS JUCE_STRICT_REFCOUNTEDPOINTER="1" JUCE_VST3_CAN_REPLACE_VST2="0"/>

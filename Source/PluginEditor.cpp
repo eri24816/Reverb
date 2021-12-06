@@ -7,6 +7,7 @@
 */
 
 #include "PluginProcessor.h"
+#include "LateReverbProcessor.h"
 #include "PluginEditor.h"
 
 
@@ -40,60 +41,59 @@ ReverbAudioProcessorEditor::ReverbAudioProcessorEditor(ReverbAudioProcessor& p)
     setSize (700, 300);
     addAndMakeVisible(channelSelector);
     
+    LateReverbProcessor* lrp = &p.lateReverbProcessor;
     
     addAndMakeVisible(roomSize);
     roomSize.setRange(1, 5000);
-    roomSize.onValueChange = [this, &p]() {
+    roomSize.onValueChange = [this, lrp]() {
         roomSize.nameLabel.setText("room size : " + juce::String(this->roomSize.getValue()), juce::NotificationType::dontSendNotification);
-        p.reverb.SetRoomSize(this->roomSize.getValue());
+        lrp->reverb.SetRoomSize(this->roomSize.getValue());
     };
-    roomSize.setValue(p.reverb.GetRoomSize());
+    roomSize.setValue(lrp->reverb.GetRoomSize());
 
     addAndMakeVisible(roomShape);
     roomShape.setRange(0,1);
-    roomShape.onValueChange = [this, &p]() {
+    roomShape.onValueChange = [this, lrp]() {
         roomShape.nameLabel.setText("room shape : " + juce::String(this->roomShape.getValue()), juce::NotificationType::dontSendNotification);
-        p.reverb.SetRoomShape(this->roomShape.getValue());
+        lrp->reverb.SetRoomShape(this->roomShape.getValue());
     };
-    roomShape.setValue(p.reverb.GetRoomShape());
+    roomShape.setValue(lrp->reverb.GetRoomShape());
 
     addAndMakeVisible(decay);
     decay.setRange(0, 1);
-    decay.onValueChange = [this, &p]() {
+    decay.onValueChange = [this, lrp]() {
         decay.nameLabel.setText("decay : " + juce::String(this->decay.getValue()), juce::NotificationType::dontSendNotification);
-        p.reverb.SetDecay(this->decay.getValue());
+        lrp->reverb.SetDecay(this->decay.getValue());
     };
-    decay.setValue(p.reverb.GetDecay());
+    decay.setValue(lrp->reverb.GetDecay());
 
     addAndMakeVisible(damping);
     damping.setRange(0, 10);
-    damping.onValueChange = [this, &p]() {
+    damping.onValueChange = [this, lrp]() {
         damping.nameLabel.setText("damping : " + juce::String(exp(this->damping.getValue())), juce::NotificationType::dontSendNotification);
-        p.reverb.SetDamping(exp(this->damping.getValue()));
+        lrp->reverb.SetDamping(exp(this->damping.getValue()));
     };
-    damping.setValue(log(p.reverb.GetDamping()));
+    damping.setValue(log(lrp->reverb.GetDamping()));
     
     addAndMakeVisible(modulationDepth);
     modulationDepth.setRange(0, 1);
-    modulationDepth.onValueChange = [this, &p]() {
+    modulationDepth.onValueChange = [this, lrp]() {
         modulationDepth.nameLabel.setText("mod depth : " + juce::String(this->modulationDepth.getValue()), juce::NotificationType::dontSendNotification);
-        p.reverb.SetModulationDepth(this->modulationDepth.getValue());
+        lrp->reverb.SetModulationDepth(this->modulationDepth.getValue());
     };
-    modulationDepth.setValue(p.reverb.GetModulationDepth());
+    modulationDepth.setValue(lrp->reverb.GetModulationDepth());
     
     dryWet.setRange(0, 1, 0);
-    dryWet.onValueChange = [this, &p]() {
+    dryWet.onValueChange = [this, lrp]() {
         dryWet.nameLabel.setText("wet : " + juce::String(this->dryWet.getValue()), juce::NotificationType::dontSendNotification);
-        p.reverb.SetDryWetRatio(this->dryWet.getValue());
+        lrp->reverb.SetDryWetRatio(this->dryWet.getValue());
     };
     dryWet.setValue(0.5);
 
     addAndMakeVisible(impulseButton);
     addAndMakeVisible(dryWet);
-    impulseButton.onClick = [&p]() {p.addInpulse();};
-    chooseButton.onClick = [&p]() {p.chooseFile(); };
+    impulseButton.onClick = [lrp]() {lrp->addInpulse();};
 
-    addAndMakeVisible(chooseButton);
 }
 
 ReverbAudioProcessorEditor::~ReverbAudioProcessorEditor()
@@ -124,5 +124,4 @@ void ReverbAudioProcessorEditor::resized()
     flexbox.performLayout(getLocalBounds().getProportion(juce::Rectangle<float>(0, 0, 1, 0.8)).reduced(10));
     impulseButton.setBounds(getLocalBounds().getProportion(juce::Rectangle<float>(0, 0.8, 0.5, 0.2)).reduced(10));
 
-    chooseButton.setBounds(getLocalBounds().getProportion(juce::Rectangle<float>(0.5, 0.8, 0.5, 0.2)).reduced(10));
 }

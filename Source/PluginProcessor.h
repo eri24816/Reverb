@@ -9,7 +9,8 @@
 #pragma once
 
 #include <JuceHeader.h>
-#include "IIR.h"
+#include "LateReverbProcessor.h"
+
 //==============================================================================
 /**
 */
@@ -54,38 +55,10 @@ public:
     void setStateInformation (const void* data, int sizeInBytes) override;
 
     //==============================================================================
-    void addInpulse() {
-        addInpulseNextSample = true;
-    }
-    IIR::Reverb<2> reverb;
-    IIR::Allpass2<2> allpass;
-    juce::dsp::Convolution conv;
-    
-    juce::AudioSampleBuffer chooseFile() {
-        
-        juce::File filterFile("D:\\impulse_response\\WIDE HALL-1.wav");
-        juce::AudioBuffer<float> sourceBuffer;
-        return sourceBuffer;
-        juce::AudioFormatManager formatManager;
-        formatManager.registerBasicFormats();
-        auto* reader = formatManager.createReaderFor(filterFile);
-
-        sourceBuffer.setSize(reader->numChannels, (int)reader->lengthInSamples);
-        reader->read(&sourceBuffer, 0, (int)reader->lengthInSamples, 0, false, false);
-
-        int len = sourceBuffer.getNumSamples();
-        std::cout << "Length: " << len << std::endl;
-        for (int i = 0; i < len; i++) {
-            std::cout << *(sourceBuffer.getReadPointer(0) + i) << " ";
-            if (i == 100)
-                break;
-        }
-        return sourceBuffer;
-    }
-
+    LateReverbProcessor lateReverbProcessor;
 private:
 
-    int addInpulseNextSample = false;
+    
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ReverbAudioProcessor)
 };
