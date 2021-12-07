@@ -19,6 +19,10 @@
             file="Source/LateReverbProcessor.cpp"/>
       <FILE id="K7oNde" name="LateReverbProcessor.h" compile="0" resource="0"
             file="Source/LateReverbProcessor.h"/>
+      <FILE id="fDbNfd" name="LateReverbEditor.cpp" compile="1" resource="0"
+            file="Source/LateReverbEditor.cpp"/>
+      <FILE id="sqezJc" name="LateReverbEditor.h" compile="0" resource="0"
+            file="Source/LateReverbEditor.h"/>
     </GROUP>
   </MAINGROUP>
   <JUCEOPTIONS JUCE_STRICT_REFCOUNTEDPOINTER="1" JUCE_VST3_CAN_REPLACE_VST2="0"/>

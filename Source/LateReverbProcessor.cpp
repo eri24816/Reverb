@@ -93,6 +93,8 @@ void LateReverbProcessor::changeProgramName(int index, const juce::String& newNa
 //==============================================================================
 void LateReverbProcessor::prepareToPlay(double sampleRate, int samplesPerBlock)
 {
+
+    /*
     juce::dsp::ProcessSpec spec;
     spec.sampleRate = sampleRate;
     spec.maximumBlockSize = samplesPerBlock;
@@ -102,15 +104,12 @@ void LateReverbProcessor::prepareToPlay(double sampleRate, int samplesPerBlock)
 
     conv.reset();
 
-    /*
-    conv.loadImpulseResponse(buffer, (double)44100, juce::dsp::Convolution::Stereo::yes
-        , juce::dsp::Convolution::Trim::no, juce::dsp::Convolution::Normalise::yes);*/
 
     conv.loadImpulseResponse(juce::File::getSpecialLocation(juce::File::SpecialLocationType::userMusicDirectory).getChildFile("WIDE_HALL_trim.wav"),
         juce::dsp::Convolution::Stereo::yes
         , juce::dsp::Convolution::Trim::yes, 0);
     conv.prepare(spec);
-
+    */
 }
 
 void LateReverbProcessor::releaseResources()
@@ -181,12 +180,12 @@ void LateReverbProcessor::processBlock(juce::AudioBuffer<float>& buffer, juce::M
         {
             *buffer.getWritePointer(channel, sample) = systemOutput[channel];
         }
-
+        
     }
-
+    /*
     juce::dsp::AudioBlock<float> block(buffer);
     juce::dsp::ProcessContextReplacing<float> context(block);
-    conv.process(context);
+    conv.process(context);*/
 }
 
 //==============================================================================

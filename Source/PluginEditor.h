@@ -10,18 +10,8 @@
 
 #include <JuceHeader.h>
 #include "PluginProcessor.h"
+#include "LateReverbEditor.h"
 
-class RotarySlider : public juce::Slider {
-private:
-    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> attachment;
-    
-public:
-    juce::Label nameLabel;
-
-    RotarySlider(ReverbAudioProcessor& audioProcessor, char* name);
-    RotarySlider() {};
-    void resized() override;
-};
 
 //==============================================================================
 /**
@@ -36,11 +26,7 @@ public:
     void paint (juce::Graphics&) override;
     void resized() override;
 
-    RotarySlider channelSelector, dryWet;
-
-    RotarySlider roomSize, roomShape, decay, damping, modulationDepth;
-
-    juce::TextButton impulseButton;
+    LateReverbEditor lateReverbEditor;
 
 private:
     // This reference is provided as a quick way for your editor to
